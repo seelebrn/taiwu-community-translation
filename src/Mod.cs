@@ -1,4 +1,4 @@
-﻿using Config;
+using Config;
 using Config.Common;
 using FrameWork;
 using HarmonyLib;
@@ -189,13 +189,10 @@ namespace TaiwuCommunityTranslation
             Debug.Log("About to apply English to non-JSON files");
             ApplyEnglishLangauge();
             Task<ParallelLoopResult> initCfgTask = Task.Run<ParallelLoopResult>((Func<ParallelLoopResult>)(() => Parallel.ForEach<IConfigData>((IEnumerable<IConfigData>)ConfigCollection.Items, (Action<IConfigData>)(item => item.Init()))));
-            Debug.Log("Application Done");
-            while (!initCfgTask.IsCompleted)
-                yield return (object)null;
-            if (initCfgTask.Exception != null)
-                throw initCfgTask.Exception;
+            Debug.Log("Application Result Is Complete : " + initCfgTask.Result.IsCompleted + " // Status " + initCfgTask.Status);
+            RefNameMap.DoQueuedLoadRequests();
             LocalStringManager.Release();
-
+            SensitiveWordsSystem.Instance.Init();
             yield return (object)new WaitForEndOfFrame();
         }
 
