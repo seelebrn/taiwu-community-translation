@@ -194,16 +194,15 @@ namespace TaiwuCommunityTranslation
             {
                 yield return null;
             }
+            var list = new List<object>();
             Task<ParallelLoopResult> initCfgTask = Task.Run<ParallelLoopResult>(() => Parallel.ForEach<IConfigData>(ConfigCollection.Items, delegate (IConfigData item)
-            {
-                
-                //Debug.Log("Item name : " + item.ToString());
-                item.Init();
+            {         
+                    item.Init();          
             }));
-            //Debug.Log("initCfgTask.Result Initial : " + initCfgTask.Result.ToString() + " // Status : " + initCfgTask.Status);
+            initCfgTask.Wait();
             while (!initCfgTask.IsCompleted)
             {
-                Debug.Log("initCfgTask.Result While : " + initCfgTask.Result.ToString() + " // Status : " + initCfgTask.Status);
+
 
                 yield return null;
             }
@@ -212,12 +211,10 @@ namespace TaiwuCommunityTranslation
             {
                 throw initCfgTask.Exception;
             }
-            //Debug.Log("initCfgTask.Result After : " + initCfgTask.Result.ToString() + " // Status : " + initCfgTask.Status);
 
             RefNameMap.DoQueuedLoadRequests();
             LocalStringManager.Release();
             SensitiveWordsSystem.Instance.Init();
-            Game.ClockAndLogInfo("all config data load complete ....", false);
             yield return (object)new WaitForEndOfFrame();
         }
 
@@ -433,18 +430,18 @@ namespace TaiwuCommunityTranslation
     {
         static bool Prefix(UI_GetItem __instance)
         {
-           if (__instance._titleList.Count <= 0 || __instance._title.IsNullOrEmpty())
-                    return false;
-                if (__instance._title.Equals(LocalStringManager.Get((ushort)1275)) || __instance._title.Equals(LocalStringManager.Get((ushort)2540)) || __instance._title.Equals(LocalStringManager.Get((ushort)2541)))
-                    __instance._backIndex = 4;
-                else if (__instance._title.Equals(LocalStringManager.Get((ushort)2542)) || __instance._title.Equals(LocalStringManager.Get((ushort)2543)) || __instance._title.Equals(LocalStringManager.Get((ushort)2544)) || __instance._title.Equals(LocalStringManager.Get((ushort)2545)) || __instance._title.Equals(LocalStringManager.Get((ushort)2546)))
-                    __instance._backIndex = 3;
-                else if (__instance._title.Equals(LocalStringManager.Get((ushort)2547)) || __instance._title.Equals(LocalStringManager.Get((ushort)2548)))
-                    __instance._backIndex = 2;
-                else if (__instance._title.Equals(LocalStringManager.Get((ushort)1276)) || __instance._title.Equals(LocalStringManager.Get((ushort)2549)) || __instance._title.Equals(LocalStringManager.Get((ushort)2550)) || __instance._title.Equals(LocalStringManager.Get((ushort)2551)) || __instance._title.Equals(LocalStringManager.Get((ushort)2382)))
-                    __instance._backIndex = 1;
-                else if (__instance._title.Equals(LocalStringManager.Get((ushort)2552)))
-                    __instance._backIndex = 0;
+            if (__instance._titleList.Count <= 0 || __instance._title.IsNullOrEmpty())
+                return false;
+            if (__instance._title.Equals(LocalStringManager.Get((ushort)1275)) || __instance._title.Equals(LocalStringManager.Get((ushort)2540)) || __instance._title.Equals(LocalStringManager.Get((ushort)2541)))
+                __instance._backIndex = 4;
+            else if (__instance._title.Equals(LocalStringManager.Get((ushort)2542)) || __instance._title.Equals(LocalStringManager.Get((ushort)2543)) || __instance._title.Equals(LocalStringManager.Get((ushort)2544)) || __instance._title.Equals(LocalStringManager.Get((ushort)2545)) || __instance._title.Equals(LocalStringManager.Get((ushort)2546)))
+                __instance._backIndex = 3;
+            else if (__instance._title.Equals(LocalStringManager.Get((ushort)2547)) || __instance._title.Equals(LocalStringManager.Get((ushort)2548)))
+                __instance._backIndex = 2;
+            else if (__instance._title.Equals(LocalStringManager.Get((ushort)1276)) || __instance._title.Equals(LocalStringManager.Get((ushort)2549)) || __instance._title.Equals(LocalStringManager.Get((ushort)2550)) || __instance._title.Equals(LocalStringManager.Get((ushort)2551)) || __instance._title.Equals(LocalStringManager.Get((ushort)2382)))
+                __instance._backIndex = 1;
+            else if (__instance._title.Equals(LocalStringManager.Get((ushort)2552)))
+                __instance._backIndex = 0;
             CRawImage image = __instance.CGet<CRawImage>("Back");
             CImage component = __instance.CGet<RectTransform>("Title").GetChild(0).GetComponent<CImage>();
             ResLoader.Load<Texture2D>(Path.Combine("RemakeResources/Textures/GetItem", __instance._backNameList[__instance._backIndex]), (Action<Texture2D>)(texture =>
