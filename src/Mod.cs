@@ -185,14 +185,39 @@ namespace TaiwuCommunityTranslation
         {
             LocalStringManager.Init("zh-CN");
             while (!LocalStringManager.ConfigLanguageInitReady)
-                yield return (object)null;
+            {
+                yield return null;
+            }
             Debug.Log("About to apply English to non-JSON files");
             ApplyEnglishLangauge();
-            Task<ParallelLoopResult> initCfgTask = Task.Run<ParallelLoopResult>((Func<ParallelLoopResult>)(() => Parallel.ForEach<IConfigData>((IEnumerable<IConfigData>)ConfigCollection.Items, (Action<IConfigData>)(item => item.Init()))));
-            Debug.Log("Application Result Is Complete : " + initCfgTask.Result.IsCompleted + " // Status " + initCfgTask.Status);
+            while (!LocalStringManager.ConfigLanguageInitReady)
+            {
+                yield return null;
+            }
+            Task<ParallelLoopResult> initCfgTask = Task.Run<ParallelLoopResult>(() => Parallel.ForEach<IConfigData>(ConfigCollection.Items, delegate (IConfigData item)
+            {
+                
+                //Debug.Log("Item name : " + item.ToString());
+                item.Init();
+            }));
+            //Debug.Log("initCfgTask.Result Initial : " + initCfgTask.Result.ToString() + " // Status : " + initCfgTask.Status);
+            while (!initCfgTask.IsCompleted)
+            {
+                Debug.Log("initCfgTask.Result While : " + initCfgTask.Result.ToString() + " // Status : " + initCfgTask.Status);
+
+                yield return null;
+            }
+            bool flag2 = initCfgTask.Exception != null;
+            if (flag2)
+            {
+                throw initCfgTask.Exception;
+            }
+            //Debug.Log("initCfgTask.Result After : " + initCfgTask.Result.ToString() + " // Status : " + initCfgTask.Status);
+
             RefNameMap.DoQueuedLoadRequests();
             LocalStringManager.Release();
             SensitiveWordsSystem.Instance.Init();
+            Game.ClockAndLogInfo("all config data load complete ....", false);
             yield return (object)new WaitForEndOfFrame();
         }
 
@@ -408,18 +433,18 @@ namespace TaiwuCommunityTranslation
     {
         static bool Prefix(UI_GetItem __instance)
         {
-            if (__instance._titleList.Count <= 0 || __instance._title.IsNullOrEmpty())
-                return false;
-            if (__instance._title.Equals(LocalStringManager.Get((ushort)1124)) || __instance._title.Equals(LocalStringManager.Get((ushort)2280)) || __instance._title.Equals(LocalStringManager.Get((ushort)2281)))
-                __instance._backIndex = 4;
-            else if (__instance._title.Equals(LocalStringManager.Get((ushort)2282)) || __instance._title.Equals(LocalStringManager.Get((ushort)2283)) || __instance._title.Equals(LocalStringManager.Get((ushort)2284)) || __instance._title.Equals(LocalStringManager.Get((ushort)2285)) || __instance._title.Equals(LocalStringManager.Get((ushort)2286)))
-                __instance._backIndex = 3;
-            else if (__instance._title.Equals(LocalStringManager.Get((ushort)2287)) || __instance._title.Equals(LocalStringManager.Get((ushort)2288)))
-                __instance._backIndex = 2;
-            else if (__instance._title.Equals(LocalStringManager.Get((ushort)1125)) || __instance._title.Equals(LocalStringManager.Get((ushort)2289)) || __instance._title.Equals(LocalStringManager.Get((ushort)2290)) || __instance._title.Equals(LocalStringManager.Get((ushort)2128)))
-                __instance._backIndex = 1;
-            else if (__instance._title.Equals(LocalStringManager.Get((ushort)2291)))
-                __instance._backIndex = 0;
+           if (__instance._titleList.Count <= 0 || __instance._title.IsNullOrEmpty())
+                    return false;
+                if (__instance._title.Equals(LocalStringManager.Get((ushort)1275)) || __instance._title.Equals(LocalStringManager.Get((ushort)2540)) || __instance._title.Equals(LocalStringManager.Get((ushort)2541)))
+                    __instance._backIndex = 4;
+                else if (__instance._title.Equals(LocalStringManager.Get((ushort)2542)) || __instance._title.Equals(LocalStringManager.Get((ushort)2543)) || __instance._title.Equals(LocalStringManager.Get((ushort)2544)) || __instance._title.Equals(LocalStringManager.Get((ushort)2545)) || __instance._title.Equals(LocalStringManager.Get((ushort)2546)))
+                    __instance._backIndex = 3;
+                else if (__instance._title.Equals(LocalStringManager.Get((ushort)2547)) || __instance._title.Equals(LocalStringManager.Get((ushort)2548)))
+                    __instance._backIndex = 2;
+                else if (__instance._title.Equals(LocalStringManager.Get((ushort)1276)) || __instance._title.Equals(LocalStringManager.Get((ushort)2549)) || __instance._title.Equals(LocalStringManager.Get((ushort)2550)) || __instance._title.Equals(LocalStringManager.Get((ushort)2551)) || __instance._title.Equals(LocalStringManager.Get((ushort)2382)))
+                    __instance._backIndex = 1;
+                else if (__instance._title.Equals(LocalStringManager.Get((ushort)2552)))
+                    __instance._backIndex = 0;
             CRawImage image = __instance.CGet<CRawImage>("Back");
             CImage component = __instance.CGet<RectTransform>("Title").GetChild(0).GetComponent<CImage>();
             ResLoader.Load<Texture2D>(Path.Combine("RemakeResources/Textures/GetItem", __instance._backNameList[__instance._backIndex]), (Action<Texture2D>)(texture =>
